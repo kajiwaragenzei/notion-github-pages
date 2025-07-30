@@ -7,9 +7,16 @@ ${include:head.html}
 <body>
 ${include:header.html}
   <main>
-    ${ホーム}
+      <section class="hero"><!-- ホームだけ配置 --> 
+        ${ホームhero}
+      </section>
+      <section class="notices"><!-- ホームだけ配置 --> 
+        ${ホームnews}
+      </section>
+      <article>
+        ${ホーム}
+      </article>
   </main>
 ${include:footer.html}
-  <script src="script.js"></script>
 </body>
 </html>
