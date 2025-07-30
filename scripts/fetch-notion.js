@@ -10,7 +10,6 @@ const databaseId = process.env.NOTION_DATABASE_ID;
 function blocksToText(blocks) {
   return blocks.map(block => {
     if (block.type === 'paragraph') {
-      // Notion SDK v2: block.paragraph.rich_text
       return (block.paragraph.rich_text ?? block.paragraph.text ?? []).map(t => t.plain_text).join('');
     }
     return '';
@@ -57,14 +56,11 @@ function templatePathToOutputPath(templatePath) {
 // publicディレクトリの不要ファイル削除
 function cleanOutputDir(baseDir, validFilesSet) {
   if (!fs.existsSync(baseDir)) return;
-
   for (const file of fs.readdirSync(baseDir)) {
     const fullPath = path.join(baseDir, file);
     const relPath = path.relative('public', fullPath);
-
     if (fs.statSync(fullPath).isDirectory()) {
       cleanOutputDir(fullPath, validFilesSet);
-      // ディレクトリが空になったら削除
       if (fs.readdirSync(fullPath).length === 0) {
         fs.rmdirSync(fullPath);
       }
@@ -80,7 +76,6 @@ function cleanOutputDir(baseDir, validFilesSet) {
 async function main() {
   // 1. Notionページデータを取得
   const dbResponse = await notion.databases.query({ database_id: databaseId });
-  // ページ名→ページデータ辞書を作る
   const notionPages = {};
   for (const page of dbResponse.results) {
     const title = page.properties.名前.title[0]?.plain_text || "No Title";
@@ -88,49 +83,43 @@ async function main() {
     notionPages[title] = { pageId, page };
   }
 
-  // 2. テンプレート一覧を取得
-  const templates = getAllTemplates('public');
-  // 生成されるべき出力ファイル一覧をセットとして保持
+  // 2. テンプレート一覧を取得（ここでファイルが存在するもののみ！）
+  const templatesDir = 'templates'; // テンプレート用ディレクトリ
+  const templates = getAllTemplates(templatesDir);
+
+  // 3. 生成されるべき出力ファイル一覧
   const validFiles = templates.map(tpl => templatePathToOutputPath(tpl));
   const validFilesSet = new Set(validFiles);
 
-  // 先に不要HTMLファイルの削除を実施
+  // 4. 不要HTMLファイル削除
   cleanOutputDir('public', validFilesSet);
 
-  // 3. テンプレートごとに出力
-  for (const tpl of templates) {
-    const tplFullPath = path.join('public', tpl);
-    let html = fs.readFileSync(tplFullPath, 'utf8');
-
-    // 4. テンプレート内の ${ページ名} を探してNotion本文で置換
-    html = html.replace(/\$\{([^}]+)\}/g, (match, pageName) => {
-      const entry = notionPages[pageName];
-      if (!entry) return ''; // Notionに該当ページ名がなければ空
-      return entry.body || ''; // bodyは後で取得
-    });
-
-    // 5. 置換内容（Notion本文）を取得して差し込む
-    // すべての${...}についてbodyを取得
-    const needBodyPages = [...html.matchAll(/\$\{([^}]+)\}/g)].map(m => m[1]);
-    for (const pageName of needBodyPages) {
-      if (notionPages[pageName] && !notionPages[pageName].body) {
-        const blocks = await getPageBlocks(notionPages[pageName].pageId);
-        notionPages[pageName].body = blocksToText(blocks);
-      }
+  // 5. Notion本文キャッシュ
+  for (const pageName of Object.keys(notionPages)) {
+    if (!notionPages[pageName].body) {
+      const blocks = await getPageBlocks(notionPages[pageName].pageId);
+      notionPages[pageName].body = blocksToText(blocks);
     }
-    // 再度置換（本文取得後）
+  }
+
+  // 6. テンプレートごとに出力
+  for (const tpl of templates) {
+    const tplFullPath = path.join(templatesDir, tpl);
+    if (!fs.existsSync(tplFullPath)) {
+      console.warn(`Template not found: ${tplFullPath}`);
+      continue;
+    }
+    let html = fs.readFileSync(tplFullPath, 'utf8');
     html = html.replace(/\$\{([^}]+)\}/g, (match, pageName) => {
       const entry = notionPages[pageName];
-      if (!entry) return '';
+      if (!entry) {
+        console.warn(`Warning: Notion page not found for "${pageName}"`);
+        return '';
+      }
       return entry.body || '';
     });
 
-    // 6. 出力先パスへ
     const outPath = path.join('public', templatePathToOutputPath(tpl));
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, html, 'utf8');
-    console.log(`Generated: ${outPath}`);
-  }
-}
-
-main();
+    console.log(`Generated:
