@@ -104,14 +104,12 @@ async function main() {
   // 5. Notion本文キャッシュ
   for (const pageName of Object.keys(notionPages)) {
     if (!notionPages[pageName].body) {
-      // Notionページ → Markdown
       const mdBlocks = await n2m.pageToMarkdown(notionPages[pageName].pageId);
-      const mdString = n2m.toMarkdownString(mdBlocks);
-      // Markdown → HTML
-      notionPages[pageName].body = mdIt.render(mdString);
+      const mdStringObj = n2m.toMarkdownString(mdBlocks);
+      const markdown = mdStringObj.parent;
+      notionPages[pageName].body = mdIt.render(markdown);
     }
   }
-
 
   // 6. テンプレートごとに出力
   for (const tpl of templates) {
