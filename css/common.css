@@ -64,6 +64,7 @@ article {
     text-align: center;
     font-size:1.1em;
     width:100%;
+    white-space:break-spaces
 }
 
 section.hero img {
