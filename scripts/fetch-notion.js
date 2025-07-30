@@ -50,7 +50,7 @@ function getAllTemplates(dir, prefix = '') {
 
 // テンプレート名から出力先パスを決定
 function templatePathToOutputPath(templatePath) {
-  if (templatePath === 'top.html') return 'index.html';
+  if (templatePath === 'home.html') return 'index.html';
   return templatePath.replace(/\.html$/, '/index.html');
 }
 
