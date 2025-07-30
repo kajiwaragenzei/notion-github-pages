@@ -2,7 +2,7 @@ name: Update Notion Content
 on:
   schedule:
     - cron: '0 * * * *' # 毎時0分に実行
-  workflow_dispatch: # 手動実行も可
+  workflow_dispatch:
 
 jobs:
   update:
@@ -20,6 +20,9 @@ jobs:
       run: npm install
 
     - name: Run Notion fetch script
+      env:
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
       run: node scripts/fetch-notion.js
 
     - name: Commit and push changes
@@ -34,4 +37,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public # 生成したWebページのディレクトリ
+        publish_dir: ./public
