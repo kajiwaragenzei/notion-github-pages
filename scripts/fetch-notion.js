@@ -122,4 +122,8 @@ async function main() {
     const outPath = path.join('public', templatePathToOutputPath(tpl));
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, html, 'utf8');
-    console.log(`Generated:
+    console.log(`Generated: ${outPath}`);
+  }
+}
+
+main();
