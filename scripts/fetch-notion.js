@@ -150,6 +150,7 @@ async function main() {
   // 7. アセット転送
   fs.cpSync('asset/css', 'public/css', { recursive: true });
   fs.cpSync('asset/js', 'public/js', { recursive: true });
+  fs.cpSync('asset/img', 'public/img', { recursive: true });
 }
 
 main();
