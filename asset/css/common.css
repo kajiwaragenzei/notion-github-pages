@@ -113,20 +113,21 @@ article h2, article h3, article h4 {
   font-weight: 600;
 }
 article h2 {
-  color: #183153;
-  background: linear-gradient(90deg, #e9f1fa 60%, transparent);
-  border-left: 6px solid #0070c8;
+  color: #111;
+  background: linear-gradient(300deg, #e9f1fa 2%, #ffd147);
+  /* border-left: 6px solid #0070c8; */
+  font-size: 28px;
   padding: 0.55em 0.7em 0.35em 0.7em;
   margin-top: 2.6em;    /* ← 上余白をしっかり */
   margin-bottom: 1.2em; /* ← 下余白も広め */
   font-weight: 800;
   letter-spacing: 0.02em;
-  border-radius: 0 4px 4px 0;
-  box-shadow: 0 3px 12px 0 rgba(24,49,83,0.04);
+  /* border-radius: 0 4px 4px 0; */
+  /* box-shadow: 0 3px 12px 0 rgba(24,49,83,0.04); */
   display: block;
 }
-article h3 { font-size: 1.05rem; border-left: 3px solid #5d9bdf; padding-left: 0.45em; }
-article h4 { font-size: 0.99rem; border-left: 2px solid #a8c9e9; padding-left: 0.4em; }
+article h3 { font-size: 1.05rem; border-left: 3px solid #ffd147; padding-left: 0.45em; }
+article h4 { font-size: 0.99rem; border-left: 2px solid #fde5a0; padding-left: 0.4em; }
 article p, article li { font-size: 0.98rem; }
 article ul, article ol { margin: 1em 0 1em 1.1em; padding: 0; }
 article li { margin-bottom: 0.6em; }
