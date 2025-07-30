@@ -134,6 +134,10 @@ async function main() {
     fs.writeFileSync(outPath, html, 'utf8');
     console.log(`Generated: ${outPath}`);
   }
+
+  // 7. アセット転送
+  fs.cpSync('asset/css', 'public/css', { recursive: true });
+  fs.cpSync('asset/js', 'public/js', { recursive: true });
 }
 
 main();
