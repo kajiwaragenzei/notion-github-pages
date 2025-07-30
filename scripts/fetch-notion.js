@@ -6,7 +6,6 @@ const path = require('path');
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
 
-// NotionブロックをHTML化（paragraphのみ対応例）
 function blocksToHTML(blocks) {
   return blocks.map(block => {
     if (block.type === 'paragraph') {
@@ -17,7 +16,6 @@ function blocksToHTML(blocks) {
   }).join('\n');
 }
 
-// ページ本文取得
 async function getPageBlocks(pageId) {
   const blocks = [];
   let cursor;
@@ -33,7 +31,6 @@ async function getPageBlocks(pageId) {
   return blocks;
 }
 
-// HTMLテンプレート
 function renderHtml(title, body) {
   return `<!DOCTYPE html>
 <html lang="ja">
@@ -51,10 +48,20 @@ function renderHtml(title, body) {
 async function main() {
   const dbResponse = await notion.databases.query({ database_id: databaseId });
   for (const page of dbResponse.results) {
-    // pathはテキスト型プロパティとして取得
-    let rawPath = page.properties.path?.plain_text || page.id;
-    // "/" 先頭・末尾のスラッシュを除外してパス化（必要なら）
-    const urlPath = rawPath.replace(/^\/|\/$/g, '') || page.id;
+    // 1. pathプロパティを取得（text型もrich_text型も対応）
+    let rawPath = page.properties.path?.rich_text?.[0]?.plain_text || page.properties.path?.plain_text || page.id;
+    if (!rawPath || rawPath.trim() === '') {
+      rawPath = page.id;
+    }
+    // 2. ルートパス対応
+    let urlPath = rawPath.trim();
+    if (urlPath === '/' || urlPath === '') {
+      urlPath = '';
+    } else {
+      // 先頭・末尾スラッシュ除去 & スラッシュ区切り
+      urlPath = urlPath.replace(/^\/|\/$/g, '');
+    }
+    const outDir = urlPath ? path.join('public', urlPath) : 'public';
     const title = page.properties.名前?.title?.[0]?.plain_text || "No Title";
     const pageId = page.id;
 
@@ -62,7 +69,6 @@ async function main() {
     const bodyHtml = blocksToHTML(blocks);
     const html = renderHtml(title, bodyHtml);
 
-    const outDir = path.join('public', urlPath);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
     console.log(`Generated: ${path.join(outDir, 'index.html')}`);
