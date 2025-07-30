@@ -2,19 +2,11 @@ require('dotenv').config();
 const { Client } = require('@notionhq/client');
 const fs = require('fs');
 const path = require('path');
-
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
-
-// Notion本文をテキスト化
-function blocksToText(blocks) {
-  return blocks.map(block => {
-    if (block.type === 'paragraph') {
-      return (block.paragraph.rich_text ?? block.paragraph.text ?? []).map(t => t.plain_text).join('');
-    }
-    return '';
-  }).join('\n');
-}
+const { NotionToMarkdown } = require("notion-to-md");
+const mdIt = require("markdown-it")();
+const n2m = new NotionToMarkdown({ notionClient: notion });
 
 // Notionページ本文取得
 async function getPageBlocks(pageId) {
@@ -112,10 +104,14 @@ async function main() {
   // 5. Notion本文キャッシュ
   for (const pageName of Object.keys(notionPages)) {
     if (!notionPages[pageName].body) {
-      const blocks = await getPageBlocks(notionPages[pageName].pageId);
-      notionPages[pageName].body = blocksToText(blocks);
+      // Notionページ → Markdown
+      const mdBlocks = await n2m.pageToMarkdown(notionPages[pageName].pageId);
+      const mdString = n2m.toMarkdownString(mdBlocks);
+      // Markdown → HTML
+      notionPages[pageName].body = mdIt.render(mdString);
     }
   }
+
 
   // 6. テンプレートごとに出力
   for (const tpl of templates) {
