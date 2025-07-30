@@ -117,7 +117,8 @@ async function main() {
     if (!notionPages[pageName].body) {
       const mdBlocks = await n2m.pageToMarkdown(notionPages[pageName].pageId);
       const mdStringObj = n2m.toMarkdownString(mdBlocks);
-      const markdown = mdStringObj.parent;
+      let markdown = mdStringObj.parent;
+      markdown = shiftHeadingLevels(markdown);
       notionPages[pageName].body = mdIt.render(markdown);
     }
   }
