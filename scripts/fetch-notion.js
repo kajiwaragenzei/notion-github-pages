@@ -80,6 +80,17 @@ function applyIncludes(html, commonDir = 'template_common', depth = 0) {
   });
 }
 
+// headingタグのレベルを下げる
+function shiftHeadingLevels(markdown) {
+  return markdown
+    .replace(/^##### /gm, '###### ') // heading_5 -> h6
+    .replace(/^#### /gm, '##### ')   // heading_4 -> h5
+    .replace(/^### /gm, '#### ')     // heading_3 -> h4
+    .replace(/^## /gm, '### ')       // heading_2 -> h3
+    .replace(/^# /gm, '## ');        // heading_1 -> h2
+}
+
+
 async function main() {
   // 1. Notionページデータを取得
   const dbResponse = await notion.databases.query({ database_id: databaseId });
