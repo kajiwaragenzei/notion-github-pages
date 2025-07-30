@@ -29,6 +29,9 @@ jobs:
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
       run: node scripts/fetch-notion.js
 
+    - name: Add CNAME file
+      run: echo 'j-j-j-j.jpcenter.online' > public/CNAME
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
