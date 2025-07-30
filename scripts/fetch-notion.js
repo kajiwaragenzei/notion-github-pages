@@ -48,6 +48,7 @@ function templatePathToOutputPath(templatePath) {
 // publicディレクトリの不要ファイル削除
 function cleanOutputDir(baseDir, validFilesSet) {
   if (!fs.existsSync(baseDir)) return;
+  const alwaysKeepFiles = new Set(['CNAME', 'README.md', '.nojekyll']); // ←追加
   for (const file of fs.readdirSync(baseDir)) {
     const fullPath = path.join(baseDir, file);
     const relPath = path.relative('public', fullPath);
@@ -57,7 +58,8 @@ function cleanOutputDir(baseDir, validFilesSet) {
         fs.rmdirSync(fullPath);
       }
     } else {
-      if (!validFilesSet.has(relPath)) {
+      // validFilesSet か alwaysKeepFiles に含まれたら消さない！
+      if (!validFilesSet.has(relPath) && !alwaysKeepFiles.has(relPath)) {
         fs.unlinkSync(fullPath);
         console.log(`Deleted old file: ${relPath}`);
       }
