@@ -73,6 +73,21 @@ function cleanOutputDir(baseDir, validFilesSet) {
   }
 }
 
+// 共通パーツ読み込み（再帰的）
+function applyIncludes(html, commonDir = 'template_common', depth = 0) {
+  if (depth > 10) throw new Error('Include loop detected!');
+  return html.replace(/\$\{include:([^\}]+)\}/g, (match, filename) => {
+    const filePath = path.join(commonDir, filename);
+    if (!fs.existsSync(filePath)) {
+      console.warn(`Include not found: ${filePath}`);
+      return '';
+    }
+    const part = fs.readFileSync(filePath, 'utf8');
+    // 再帰的にさらにインクルードを解決
+    return applyIncludes(part, commonDir, depth + 1);
+  });
+}
+
 async function main() {
   // 1. Notionページデータを取得
   const dbResponse = await notion.databases.query({ database_id: databaseId });
@@ -110,6 +125,7 @@ async function main() {
       continue;
     }
     let html = fs.readFileSync(tplFullPath, 'utf8');
+    html = applyIncludes(html)
     html = html.replace(/\$\{([^}]+)\}/g, (match, pageName) => {
       const entry = notionPages[pageName];
       if (!entry) {
