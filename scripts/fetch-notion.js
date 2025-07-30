@@ -84,7 +84,7 @@ async function main() {
   }
 
   // 2. テンプレート一覧を取得（ここでファイルが存在するもののみ！）
-  const templatesDir = 'templates'; // テンプレート用ディレクトリ
+  const templatesDir = 'template'; // テンプレート用ディレクトリ
   const templates = getAllTemplates(templatesDir);
 
   // 3. 生成されるべき出力ファイル一覧
