@@ -89,7 +89,7 @@ async function main() {
   }
 
   // 2. テンプレート一覧を取得
-  const templates = getAllTemplates('template');
+  const templates = getAllTemplates('public');
   // 生成されるべき出力ファイル一覧をセットとして保持
   const validFiles = templates.map(tpl => templatePathToOutputPath(tpl));
   const validFilesSet = new Set(validFiles);
@@ -99,7 +99,7 @@ async function main() {
 
   // 3. テンプレートごとに出力
   for (const tpl of templates) {
-    const tplFullPath = path.join('template', tpl);
+    const tplFullPath = path.join('public', tpl);
     let html = fs.readFileSync(tplFullPath, 'utf8');
 
     // 4. テンプレート内の ${ページ名} を探してNotion本文で置換
