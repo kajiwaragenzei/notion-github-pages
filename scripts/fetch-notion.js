@@ -1,23 +1,29 @@
 const { Client } = require("@notionhq/client");
-const fs = require('fs');
-const path = require('path');
+const { NotionToMarkdown } = require("notion-to-md");
+const fs = require("fs");
+const path = require("path");
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const databaseId = process.env.NOTION_DATABASE_ID;
+const n2m = new NotionToMarkdown({ notionClient: notion });
 
-async function fetchNotionContent() {
-  const response = await notion.databases.query({ database_id: databaseId });
-  // ここでNotionのデータをHTML化
-  // 必要に応じてMarkdown→HTML変換ライブラリを使う
-  return `<ul>` + response.results.map(r => `<li>${r.id}</li>`).join('') + `</ul>`;
+const pageId = process.env.NOTION_PAGE_ID;
+
+async function main() {
+  // Notionページ→Markdown変換
+  const mdblocks = await n2m.pageToMarkdown(pageId);
+  const mdString = n2m.toMarkdownString(mdblocks);
+
+  // Markdown→HTML変換（markdown-itなど）
+  const md = require("markdown-it")();
+  const html = md.render(mdString);
+
+  // テンプレート読み込み
+  const template = fs.readFileSync(path.join(__dirname, "../public/template.html"), "utf8");
+  // 埋め込み
+  const result = template.replace("<!--NOTION_CONTENT-->", html);
+
+  // 出力
+  fs.writeFileSync(path.join(__dirname, "../public/index.html"), result);
 }
 
-async function buildPage() {
-  const template = fs.readFileSync(path.join(__dirname, '../public/template.html'), 'utf8');
-  const notionContent = await fetchNotionContent();
-
-  const result = template.replace('<!--NOTION_CONTENT-->', notionContent);
-  fs.writeFileSync(path.join(__dirname, '../public/index.html'), result);
-}
-
-buildPage();
+main();
