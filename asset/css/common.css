@@ -126,8 +126,8 @@ article h2 {
   /* box-shadow: 0 3px 12px 0 rgba(24,49,83,0.04); */
   display: block;
 }
-article h3 { font-size: 1.05rem; border-left: 3px solid #ffd147; margin-top: 2em; padding-left: 0.45em;}
-article h4 { font-size: 0.99rem; border-left: 2px solid #fde5a0; margin-top: 2em; padding-left: 0.4em; }
+article h3 { font-size: 1.05rem; border-left: 3px solid #ffd147; padding-left: 0.45em; }
+article h4 { font-size: 0.99rem; border-left: 2px solid #fde5a0; padding-left: 0.4em; }
 article p, article li { font-size: 0.98rem; }
 article ul, article ol { margin: 1em 0 1em 1.1em; padding: 0; }
 article li { margin-bottom: 0.6em; }
@@ -141,56 +141,18 @@ p:has(img) img {
   /* border-radius: 6px; */
 }
 
-/* img入りpの次のp（画像横に回り込む）*/
+/* img入りpの次のテキストブロック（画像横に回り込む）*/
 p:has(img) + p, p:has(img) + ul, p:has(img) + ol {
   margin-top: 0;
   margin-bottom: 1.2em;
   line-height: 1.7;
+  list-style:none;
 }
 
 /* さらにその次の要素は回り込み解除 */
-p:has(img) + p + * {
+p:has(img) + * + * {
   clear: both;  /* ←これで画像の下からスタート */
-  margin-top: 1em;
 }
-/* モーダルの基本デザイン */
-.img-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10,18,32,0.82);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.img-modal-overlay img {
-  max-width: 95vw;
-  max-height: 90vh;
-  box-shadow: 0 0 24px #000a;
-  border-radius: 10px;
-  background: #fff;
-}
-.img-modal-overlay:after {
-  content: "✕";
-  position: absolute;
-  top: 18px; right: 26px;
-  color: #fff;
-  font-size: 2em;
-  font-weight: bold;
-  cursor: pointer;
-  text-shadow: 0 2px 10px #222;
-}
-
-/* 縮小imgにカーソルで拡大アイコン */
-img[data-zoomable] {
-  cursor: zoom-in;
-  box-shadow: 0 0 0 0 transparent;
-  transition: box-shadow .18s;
-}
-img[data-zoomable]:hover {
-  box-shadow: 0 0 0 2px #457ef7cc;
-}
-
 
 /* 前の要素が h2 だったら上余白は狭く */
 article h2:first-child, section h2:first-child {
