@@ -1,36 +1,31 @@
-// すべての外部リンクに target="_blank" rel="noopener" を付与
 document.addEventListener("DOMContentLoaded", function() {
-  const links = document.querySelectorAll('a[href^="http"]');
-  links.forEach(function(link) {
-    // 自サイトへのリンクは除外
-    if (!link.href.startsWith(location.origin)) {
-      link.setAttribute('target', '_blank');
-      link.setAttribute('rel', 'noopener');
-    }
-  });
-});
-
-// article内imgを自動判定＆拡大
-document.addEventListener("DOMContentLoaded", function() {
-  // article内の全imgを走査
+  // article内すべてのimg
   document.querySelectorAll("article img").forEach(function(img) {
     function enableZoomIfShrinked() {
+      // 実画像サイズより縮小されて表示されているなら
       if (img.offsetWidth < img.naturalWidth - 2) {
         img.setAttribute("data-zoomable", "1");
         img.title = "クリックで拡大";
-        // すでにイベントが付いてたら追加しない
-        if (!img.hasAttribute("data-zoom-listener")) {
-          img.addEventListener("click", openImgModal);
-          img.setAttribute("data-zoom-listener", "1");
-        }
+        // clickイベントは何度も付与してもOK
+        img.onclick = function(e) {
+          openImgModal(img.src);
+        };
+      } else {
+        img.removeAttribute("data-zoomable");
+        img.onclick = null;
       }
     }
+    // 読み込み直後も画面リサイズ時も判定
     if (img.complete) enableZoomIfShrinked();
     else img.addEventListener('load', enableZoomIfShrinked);
+    window.addEventListener('resize', enableZoomIfShrinked);
   });
 
-  function openImgModal(e) {
-    const src = e.target.src;
+  // モーダル生成
+  function openImgModal(src) {
+    // すでに開いてたら一度削除
+    let old = document.querySelector('.img-modal-overlay');
+    if (old) old.remove();
     const modal = document.createElement("div");
     modal.className = "img-modal-overlay";
     modal.innerHTML = `<img src="${src}">`;
