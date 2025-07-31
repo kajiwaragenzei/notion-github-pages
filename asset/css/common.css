@@ -132,15 +132,32 @@ article p, article li { font-size: 0.98rem; }
 article ul, article ol { margin: 1em 0 1em 1.1em; padding: 0; }
 article li { margin-bottom: 0.6em; }
 
+/* img入りp内のimgをfloat */
+p:has(img) img {
+  float: left;
+  max-width: 160px; /* 好みで調整 */
+  margin-right: 16px;
+  margin-bottom: 8px;
+  /* border-radius: 6px; */
+}
+
+/* img入りpの次のp（画像横に回り込む）*/
+p:has(img) + p, p:has(img) + ul, p:has(img) + ol {
+  margin-top: 0;
+  margin-bottom: 1.2em;
+  line-height: 1.7;
+}
+
+/* さらにその次の要素は回り込み解除 */
+p:has(img) + p + * {
+  clear: both;  /* ←これで画像の下からスタート */
+  margin-top: 1em;
+}
+
+
 /* 前の要素が h2 だったら上余白は狭く */
 article h2:first-child, section h2:first-child {
   margin-top: 1.2em;
-}
-article img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 1.3em 0;
 }
 
 /* BUTTON/LINKS (汎用リンク・ボタン) */
