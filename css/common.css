@@ -135,7 +135,8 @@ article li { margin-bottom: 0.6em; }
 /* img入りp内のimgをfloat */
 article p:has(img) img {
   float: left;
-  max-width: 160px; /* 好みで調整 */
+  width: 160px;
+  max-width: 30%;
   margin-right: 16px;
   margin-bottom: 5px;
   /* border-radius: 6px; */
